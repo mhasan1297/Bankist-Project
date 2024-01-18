@@ -79,6 +79,14 @@ const displayMovements = function(movements) {
 
 displayMovements(account1.movements)
 
+const calcDisplayBalance = function(movements) {
+  const balance = movements.reduce((acc, mov) => acc + mov
+  , 0)
+  labelBalance.textContent = `${balance}`
+}
+
+calcDisplayBalance(account1.movements)
+
 const createUsername = function (accs) {
     accs.map((acc) =>
       acc.username = acc.owner
@@ -88,9 +96,6 @@ const createUsername = function (accs) {
       .join('')
   );
 };
-
-createUsername(accounts)
-console.log(accounts)
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
@@ -105,3 +110,7 @@ const currencies = new Map([
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 /////////////////////////////////////////////////
+
+createUsername(accounts)
+
+
