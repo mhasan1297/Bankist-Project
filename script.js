@@ -61,11 +61,17 @@ const inputLoanAmount = document.querySelector(".form__input--loan-amount");
 const inputCloseUsername = document.querySelector(".form__input--user");
 const inputClosePin = document.querySelector(".form__input--pin");
 
+// Function to display movements in the UI
 const displayMovements = function (movements) {
+  // Clear the existing content of the movements container
   containerMovements.innerHTML = "";
 
+  // Iterate through each movement in the provided array
   movements.forEach(function (mov, i) {
+    // Determine the type of movement (deposit or withdrawal)
     const type = mov > 0 ? "deposit" : "withdrawal";
+
+    // Create HTML structure for each movement
     const html = `<div class="movements__row">
             <div class="movements__type movements__type--${type}">${
       i + 1
@@ -73,35 +79,48 @@ const displayMovements = function (movements) {
             <div class="movements__value">${mov}€</div>
         </div>`;
 
+    // Insert the HTML at the beginning of the movements container
     containerMovements.insertAdjacentHTML("afterbegin", html);
   });
 };
 
+// Function to calculate and display the account balance
 const calcDisplayBalance = function (acc) {
+  // Calculate the total balance by summing up all movements
   const balance = acc.movements.reduce((accum, mov) => accum + mov, 0);
+  // Update the account's balance property
   acc.balance = balance;
+  // Display the balance in the UI
   labelBalance.textContent = `${balance}€`;
 };
 
+// Function to calculate and display summary information (incomes, outflows, interest)
 const calcDisplaySummary = function (acc) {
+  // Calculate total incomes by summing up positive movements
   const incomes = acc.movements
     .filter((mov) => mov > 0)
     .reduce((previous, next) => previous + next, 0);
+  // Display total incomes in the UI
   labelSumIn.textContent = `${incomes}€`;
 
+  // Calculate total outflows by summing up negative movements
   const out = acc.movements
     .filter((mov) => mov < 0)
     .reduce((previous, next) => previous + next, 0);
+  // Display total outflows in the UI (absolute value)
   labelSumOut.textContent = `${Math.abs(out)}€`;
 
+  // Calculate and display total interest earned on deposits
   const interest = acc.movements
     .filter((mov) => mov > 0)
     .map((deposit) => (deposit * acc.interestRate) / 100)
     .filter((int) => int >= 1)
     .reduce((previous, next) => previous + next, 0);
+  // Display total interest in the UI
   labelSumInterest.textContent = `${interest}€`;
 };
 
+// Function to create a username for each account based on the owner's name
 const createUsername = function (accs) {
   accs.map(
     (acc) =>
@@ -112,7 +131,7 @@ const createUsername = function (accs) {
         .join(""))
   );
 };
-
+// Call the createUsername function to generate usernames for each account
 createUsername(accounts);
 
 // Screen re loader
