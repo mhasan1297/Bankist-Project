@@ -128,6 +128,7 @@ const updateUI = function (acc) {
 
 // Event Handlers
 let currentAccount;
+
 // Login Event Handler
 btnLogin.addEventListener("click", (e) => {
   // Prevent form from submitting
@@ -145,7 +146,7 @@ btnLogin.addEventListener("click", (e) => {
     }`;
     containerApp.style.opacity = 100;
 
-    // Clear input fields
+    // Clear input field (This happens after all the code is executed in IF statement)
     inputLoginUsername.value = inputLoginPin.value = "";
     // Remove focus from input fields
     inputLoginPin.blur();
@@ -153,6 +154,7 @@ btnLogin.addEventListener("click", (e) => {
     updateUI(currentAccount);
   }
 });
+
 // Transfer Event Handler
 btnTransfer.addEventListener("click", function (e) {
   // Remove auto refresh on submission
@@ -163,6 +165,7 @@ btnTransfer.addEventListener("click", function (e) {
   const receiverAccount = accounts.find(
     (acc) => acc.username === inputTransferTo.value
   );
+  // Clear input field (This happens after all the code is executed in IF statement)
   inputTransferAmount.value = inputTransferTo.value = "";
   // Check if transfer amount is above 0, balance contains enough or more than transfer amount, receiver account exists (receiver?.)
   // and receiver account is not the same as the current account it's being sent from.
@@ -178,6 +181,29 @@ btnTransfer.addEventListener("click", function (e) {
     // Call re loader on page
     updateUI(currentAccount);
   }
+});
+
+// Close Account Event Handler
+btnClose.addEventListener("click", (e) => {
+  // Prevent auto refresh on clicks
+  e.preventDefault();
+  // Checking conditions are valid to create close. User and Pin match close inputs data.
+  if (
+    inputCloseUsername.value === currentAccount.username &&
+    Number(inputClosePin.value) === currentAccount.pin
+  ) {
+    // If true, find the index of the selected account and store it in variable Index.
+    const index = accounts.findIndex(
+      (acc) => acc.username === currentAccount.username
+    );
+    console.log(index);
+    // Now delete the data from accounts. Start at index number and remove 1 element.
+    accounts.splice(index, 1);
+    // Hide UI (Essentially login the user out since account is deleted)
+    containerApp.style.opacity = 0;
+  }
+  // Clear input field (This happens after all the code is executed in IF statement)
+  inputCloseUsername.value = inputClosePin.value = "";
 });
 
 /////////////////////////////////////////////////
