@@ -202,6 +202,26 @@ btnTransfer.addEventListener("click", function (e) {
   }
 });
 
+// Request Loan Event Handler
+btnLoan.addEventListener("click", (e) => {
+  // Stopped reload on form submission (button click)
+  e.preventDefault();
+  // Store the input loan amount in the variable
+  const amount = Number(inputLoanAmount.value);
+  // Checking if input is positive and the account has atleast 1 deposit
+  // more than or equal to 10% of the loan requested
+  if (
+    amount > 0 &&
+    currentAccount.movements.some((mov) => mov >= amount * 0.1)
+  ) {
+    // Add movement for accepted loan request
+    currentAccount.movements.push(amount);
+    //Update UI
+    updateUI(currentAccount);
+  }
+  inputLoanAmount.value = "";
+});
+
 // Close Account Event Handler
 btnClose.addEventListener("click", (e) => {
   // Prevent auto refresh on clicks
