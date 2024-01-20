@@ -61,13 +61,17 @@ const inputLoanAmount = document.querySelector(".form__input--loan-amount");
 const inputCloseUsername = document.querySelector(".form__input--user");
 const inputClosePin = document.querySelector(".form__input--pin");
 
-// Function to display movements in the UI
-const displayMovements = function (movements) {
+// -- FUNCTION to display movements in the UI -- //
+// Added sort = false, new sort functionality to order movements, but by default, it should be off (false)
+const displayMovements = function (movements, sort = false) {
   // Clear the existing content of the movements container
   containerMovements.innerHTML = "";
 
+  // Create a copy of movements and sort it if 'sort' is true; otherwise, use the original movements
+  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+
   // Iterate through each movement in the provided array
-  movements.forEach(function (mov, i) {
+  movs.forEach(function (mov, i) {
     // Determine the type of movement (deposit or withdrawal)
     const type = mov > 0 ? "deposit" : "withdrawal";
 
@@ -84,7 +88,7 @@ const displayMovements = function (movements) {
   });
 };
 
-// Function to calculate and display the account balance
+// -- FUNCTION to calculate and display the account balance -- //
 const calcDisplayBalance = function (acc) {
   // Calculate the total balance by summing up all movements
   const balance = acc.movements.reduce((accum, mov) => accum + mov, 0);
@@ -94,7 +98,7 @@ const calcDisplayBalance = function (acc) {
   labelBalance.textContent = `${balance}€`;
 };
 
-// Function to calculate and display summary information (incomes, outflows, interest)
+// -- FUNCTION to calculate and display summary information (incomes, outflows, interest) -- //
 const calcDisplaySummary = function (acc) {
   // Calculate total incomes by summing up positive movements
   const incomes = acc.movements
@@ -120,7 +124,7 @@ const calcDisplaySummary = function (acc) {
   labelSumInterest.textContent = `${interest}€`;
 };
 
-// Function to create a username for each account based on the owner's name
+// -- FUNCTION to create a username for each account based on the owner's name -- //
 const createUsername = function (accs) {
   accs.map(
     (acc) =>
@@ -134,7 +138,7 @@ const createUsername = function (accs) {
 // Call the createUsername function to generate usernames for each account
 createUsername(accounts);
 
-// Screen re loader
+// -- FUNCTION Screen re loader -- //
 
 const updateUI = function (acc) {
   // Display Movement
@@ -148,7 +152,7 @@ const updateUI = function (acc) {
 // Event Handlers
 let currentAccount;
 
-// Login Event Handler
+// -- Login Event Handler -- //
 btnLogin.addEventListener("click", (e) => {
   // Prevent form from submitting
   e.preventDefault();
@@ -174,7 +178,7 @@ btnLogin.addEventListener("click", (e) => {
   }
 });
 
-// Transfer Event Handler
+// -- Transfer Event Handler -- //
 btnTransfer.addEventListener("click", function (e) {
   // Remove auto refresh on submission
   e.preventDefault();
@@ -202,7 +206,7 @@ btnTransfer.addEventListener("click", function (e) {
   }
 });
 
-// Request Loan Event Handler
+// -- Request Loan Event Handler -- //
 btnLoan.addEventListener("click", (e) => {
   // Stopped reload on form submission (button click)
   e.preventDefault();
@@ -222,7 +226,7 @@ btnLoan.addEventListener("click", (e) => {
   inputLoanAmount.value = "";
 });
 
-// Close Account Event Handler
+// -- Close Account Event Handler -- //
 btnClose.addEventListener("click", (e) => {
   // Prevent auto refresh on clicks
   e.preventDefault();
@@ -245,16 +249,20 @@ btnClose.addEventListener("click", (e) => {
   inputCloseUsername.value = inputClosePin.value = "";
 });
 
-/////////////////////////////////////////////////
-/////////////////////////////////////////////////
-// LECTURES
+// -- Sort Transactions Event Handler -- //
 
-const currencies = new Map([
-  ["USD", "United States dollar"],
-  ["EUR", "Euro"],
-  ["GBP", "Pound sterling"],
-]);
+// Initialize a variable to keep track of whether transactions are sorted or not
+let sorted = false;
 
-const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+// Add a click event listener to the "Sort" button
+btnSort.addEventListener("click", (e) => {
+  // Prevent the default behavior of the button, which is to refresh the page
+  e.preventDefault();
 
-/////////////////////////////////////////////////
+  // Call the function to display movements (transactions) with the current sorting status
+  // If 'sorted' is false, it sorts in ascending order; if true, it sorts in descending order
+  displayMovements(currentAccount.movements, !sorted);
+
+  // Toggle the value of 'sorted' for the next click
+  sorted = !sorted;
+});
