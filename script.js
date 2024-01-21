@@ -94,7 +94,7 @@ const displayMovements = function (movements, sort = false) {
             <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
-            <div class="movements__value">${mov}€</div>
+            <div class="movements__value">${mov.toFixed(2)}€</div>
         </div>`;
 
     // Insert the HTML at the beginning of the movements container
@@ -109,7 +109,7 @@ const calcDisplayBalance = function (acc) {
   // Update the account's balance property
   acc.balance = balance;
   // Display the balance in the UI
-  labelBalance.textContent = `${balance}€`;
+  labelBalance.textContent = `${balance.toFixed(2)}€`;
 };
 
 // -- FUNCTION to calculate and display summary information (incomes, outflows, interest) -- //
@@ -119,14 +119,14 @@ const calcDisplaySummary = function (acc) {
     .filter((mov) => mov > 0)
     .reduce((previous, next) => previous + next, 0);
   // Display total incomes in the UI
-  labelSumIn.textContent = `${incomes}€`;
+  labelSumIn.textContent = `${incomes.toFixed(2)}€`;
 
   // Calculate total outflows by summing up negative movements
   const out = acc.movements
     .filter((mov) => mov < 0)
     .reduce((previous, next) => previous + next, 0);
   // Display total outflows in the UI (absolute value)
-  labelSumOut.textContent = `${Math.abs(out)}€`;
+  labelSumOut.textContent = `${Math.abs(out).toFixed(2)}€`;
 
   // Calculate and display total interest earned on deposits
   const interest = acc.movements
@@ -135,7 +135,7 @@ const calcDisplaySummary = function (acc) {
     .filter((int) => int >= 1)
     .reduce((previous, next) => previous + next, 0);
   // Display total interest in the UI
-  labelSumInterest.textContent = `${interest}€`;
+  labelSumInterest.textContent = `${interest.toFixed(2)}€`;
 };
 
 // -- FUNCTION to create a username for each account based on the owner's name -- //
@@ -225,7 +225,7 @@ btnLoan.addEventListener("click", (e) => {
   // Stopped reload on form submission (button click)
   e.preventDefault();
   // Store the input loan amount in the variable
-  const amount = +inputLoanAmount.value;
+  const amount = Math.floor(inputLoanAmount.value);
   // Checking if input is positive and the account has atleast 1 deposit
   // more than or equal to 10% of the loan requested
   if (
