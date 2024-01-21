@@ -77,23 +77,31 @@ const inputClosePin = document.querySelector(".form__input--pin");
 
 // -- FUNCTION to display movements in the UI -- //
 // Added sort = false, new sort functionality to order movements, but by default, it should be off (false)
-const displayMovements = function (movements, sort = false) {
+const displayMovements = function (acc, sort = false) {
   // Clear the existing content of the movements container
   containerMovements.innerHTML = "";
 
   // Create a copy of movements and sort it if 'sort' is true; otherwise, use the original movements
-  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+  const movs = sort
+    ? acc.movements.slice().sort((a, b) => a - b)
+    : acc.movements;
 
   // Iterate through each movement in the provided array
   movs.forEach(function (mov, i) {
     // Determine the type of movement (deposit or withdrawal)
     const type = mov > 0 ? "deposit" : "withdrawal";
-
+    // While looping through each movement and having index place, use same index to loop MovementDate (another array) and create new date
+    const date = new Date(acc.movementsDates[i]);
+    const day = `${date.getDate()}`.padStart(2, "0"); // Convert to string, then have dates show with 2 numbers, before 01 would show as 1
+    const month = `${date.getMonth() + 1}`.padStart(2, "0");
+    const year = date.getFullYear();
+    const displayDate = `${day}/${month}/${year}`;
     // Create HTML structure for each movement
     const html = `<div class="movements__row">
             <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
+            <div class ="movements__date">${displayDate}</div>
             <div class="movements__value">${mov.toFixed(2)}€</div>
         </div>`;
 
@@ -156,7 +164,7 @@ createUsername(accounts);
 
 const updateUI = function (acc) {
   // Display Movement
-  displayMovements(acc.movements);
+  displayMovements(acc);
   // Display Balance
   calcDisplayBalance(acc);
   // Display Summary
@@ -166,22 +174,38 @@ const updateUI = function (acc) {
 // EVENT HANDLERS //
 let currentAccount;
 
+// TEMP CODE -- FAKE ALWAYS LOGGED IN (WHILST DEVELOPING TO STOP HAVING TO LOGIN AFTER REFRESH) //
+currentAccount = account1;
+updateUI(currentAccount);
+containerApp.style.opacity = 100;
+
 // -- Login Event Handler -- //
 btnLogin.addEventListener("click", (e) => {
   // Prevent form from submitting
   e.preventDefault();
-
+  // Find the account with the entered username
   currentAccount = accounts.find(
     (acc) => acc.username === inputLoginUsername.value
   );
   console.log(currentAccount);
 
+  // Check if the entered PIN matches the found account's PIN
   if (currentAccount?.pin === Number(inputLoginPin.value)) {
     // Display UI and Welcome Message
     labelWelcome.textContent = `Welcome back, ${
       currentAccount.owner.split(" ")[0]
     }`;
+    // If correct, put opacity from 0 to 100
     containerApp.style.opacity = 100;
+
+    //Create Current date
+    const now = new Date();
+    const day = `${now.getDate()}`.padStart(2, "0"); // Convert to string, then have dates show with 2 numbers, before 01 would show as 1
+    const month = `${now.getMonth() + 1}`.padStart(2, "0");
+    const year = now.getFullYear();
+    const hour = now.getHours();
+    const min = `${now.getMinutes()}`.padStart(2, "0");
+    labelDate.textContent = `As of ${day}/${month}/${year}, ${hour}:${min}`;
 
     // Clear input field (This happens after all the code is executed in IF statement)
     inputLoginUsername.value = inputLoginPin.value = "";
@@ -212,9 +236,12 @@ btnTransfer.addEventListener("click", function (e) {
     currentAccount.balance >= amount &&
     receiverAccount.username !== currentAccount.username
   ) {
-    // Executing the transfer
+    // Executing the transfer (sender and receiver)
     currentAccount.movements.push(-amount);
     receiverAccount.movements.push(amount);
+    // Sending a date for movementsDate on transfer for sender and receiver
+    currentAccount.movementsDates.push(new Date().toISOString());
+    receiverAccount.movementsDates.push(new Date().toISOString());
     // Call re loader on page
     updateUI(currentAccount);
   }
@@ -234,6 +261,8 @@ btnLoan.addEventListener("click", (e) => {
   ) {
     // Add movement for accepted loan request
     currentAccount.movements.push(amount);
+    // Add loan request date as current time on request
+    currentAccount.movementsDates.push(new Date().toISOString());
     //Update UI
     updateUI(currentAccount);
   }
@@ -275,7 +304,7 @@ btnSort.addEventListener("click", (e) => {
 
   // Call the function to display movements (transactions) with the current sorting status
   // If 'sorted' is false, it sorts in ascending order; if true, it sorts in descending order
-  displayMovements(currentAccount.movements, !sorted);
+  displayMovements(currentAccount, !sorted);
 
   // Toggle the value of 'sorted' for the next click
   sorted = !sorted;
