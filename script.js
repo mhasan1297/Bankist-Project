@@ -105,6 +105,28 @@ const formatMovementDate = function (date, locale) {
   }
 };
 
+// -- FUNCTION to format all numbers and currencies --//
+
+// This function takes a numeric value, locale, and currency as parameters
+// and returns a formatted string representing the numeric value in the specified currency format.
+const formatCur = function (value, locale, currency) {
+  // Create a new Intl.NumberFormat object with the specified locale and currency options
+  const numberFormatter = new Intl.NumberFormat(locale, {
+    style: "currency", // Format as currency
+    currency: currency, // Use the provided currency
+  });
+
+  // Format the numeric value using the numberFormatter
+  const formattedValue = numberFormatter.format(value);
+
+  // Return the formatted string
+  return formattedValue;
+
+  // Example usage:
+  // const formattedAmount = formatCur(12345.67, 'en-US', 'USD');
+  // The 'formattedAmount' will contain the value formatted as currency (e.g., $12,345.67) based on the specified locale and currency.
+};
+
 // -- FUNCTION to display movements in the UI -- //
 // Added sort = false, new sort functionality to order movements, but by default, it should be off (false)
 const displayMovements = function (acc, sort = false) {
@@ -124,13 +146,31 @@ const displayMovements = function (acc, sort = false) {
     const date = new Date(acc.movementsDates[i]);
     // displayDate which goes into the HTML is calling the format function creating the formatted date then inserting to HTML
     const displayDate = formatMovementDate(date, acc.locale);
+
+    // The following code uses the Internationalization API to format the movement value as currency
+    // based on the account's locale. This ensures that the currency symbol, formatting, and precision
+    // adhere to the user's preferred formatting rules.
+
+    // Create a new Intl.NumberFormat object with the specified locale and formatting options
+    // New //
+    const formattedMov = formatCur(mov, acc.locale, acc.currency);
+
+    // Old //
+    //const formattedMov = new Intl.NumberFormat(acc.locale, {
+    //  style: "currency", // Format as currency
+    //  currency: acc.currency, // Use USD as the currency
+    //}).format(mov);
+
+    // The resulting 'formattedMov' will contain the movement value formatted as currency
+    // according to the user's preferred locale and currency symbol.
+
     // Create HTML structure for each movement
     const html = `<div class="movements__row">
             <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
             <div class ="movements__date">${displayDate}</div>
-            <div class="movements__value">${mov.toFixed(2)}€</div>
+            <div class="movements__value">${formattedMov}</div>
         </div>`;
 
     // Insert the HTML at the beginning of the movements container
@@ -145,7 +185,7 @@ const calcDisplayBalance = function (acc) {
   // Update the account's balance property
   acc.balance = balance;
   // Display the balance in the UI
-  labelBalance.textContent = `${balance.toFixed(2)}€`;
+  labelBalance.textContent = formatCur(acc.balance, acc.locale, acc.currency);
 };
 
 // -- FUNCTION to calculate and display summary information (incomes, outflows, interest) -- //
@@ -155,14 +195,14 @@ const calcDisplaySummary = function (acc) {
     .filter((mov) => mov > 0)
     .reduce((previous, next) => previous + next, 0);
   // Display total incomes in the UI
-  labelSumIn.textContent = `${incomes.toFixed(2)}€`;
+  labelSumIn.textContent = formatCur(incomes, acc.locale, acc.currency);
 
   // Calculate total outflows by summing up negative movements
   const out = acc.movements
     .filter((mov) => mov < 0)
     .reduce((previous, next) => previous + next, 0);
   // Display total outflows in the UI (absolute value)
-  labelSumOut.textContent = `${Math.abs(out).toFixed(2)}€`;
+  labelSumOut.textContent = formatCur(Math.abs(out), acc.locale, acc.currency);
 
   // Calculate and display total interest earned on deposits
   const interest = acc.movements
@@ -171,7 +211,7 @@ const calcDisplaySummary = function (acc) {
     .filter((int) => int >= 1)
     .reduce((previous, next) => previous + next, 0);
   // Display total interest in the UI
-  labelSumInterest.textContent = `${interest.toFixed(2)}€`;
+  labelSumInterest.textContent = formatCur(interest, acc.locale, acc.currency);
 };
 
 // -- FUNCTION to create a username for each account based on the owner's name -- //
