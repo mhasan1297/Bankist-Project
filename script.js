@@ -17,9 +17,9 @@ const account1 = {
     "2020-01-28T09:15:04.904Z",
     "2020-04-01T10:17:24.185Z",
     "2020-05-08T14:11:59.604Z",
-    "2020-05-27T17:01:17.194Z",
-    "2020-07-11T23:36:17.929Z",
-    "2020-07-12T10:51:36.790Z",
+    "2024-01-17T17:01:17.194Z",
+    "2024-01-19T23:36:17.929Z",
+    "2024-01-21T10:51:36.790Z",
   ],
   currency: "EUR",
   locale: "pt-PT", // de-DE
@@ -75,6 +75,33 @@ const inputClosePin = document.querySelector(".form__input--pin");
 
 // FUNCTIONS //
 
+// -- FUNCTION to calculate movement times, cleaning code by adding it into a function instead of scope of displayMovements function --//
+// Receives a date as an input and formats the given date
+const formatMovementDate = function (date) {
+  // Takes in two dates on calcDatePassed function
+  const calcDatePassed = (date1, date2) =>
+    // Doing the maths on the 2 dates when they get passed
+    Math.round(Math.abs((date2 - date1) / (1000 * 60 * 60 * 24)));
+  // Passing the two dates two the calcDatePassed function to begin doing the math
+  // Sending current date as date1 and movementsDate as date2
+  const daysPassed = calcDatePassed(new Date(), date);
+  console.log(daysPassed);
+  // Based on calDatePassed calculation, if it's 0, log 'Today'
+  if (daysPassed === 0) return "Today";
+  // Based on calDatePassed calculation, if it's 1, log 'Yesterday'
+  if (daysPassed === 1) return "Yesterday";
+  // Based on calDatePassed calculation, less than or equal to 7 (within the week)
+  // log how many days and string 'Days Ago'
+  if (daysPassed <= 7) return `${daysPassed} Days Ago`;
+  // If non of the above are true, log the full date
+  else {
+    const day = `${date.getDate()}`.padStart(2, 0);
+    const month = `${date.getMonth() + 1}`.padStart(2, 0);
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+};
+
 // -- FUNCTION to display movements in the UI -- //
 // Added sort = false, new sort functionality to order movements, but by default, it should be off (false)
 const displayMovements = function (acc, sort = false) {
@@ -92,10 +119,8 @@ const displayMovements = function (acc, sort = false) {
     const type = mov > 0 ? "deposit" : "withdrawal";
     // While looping through each movement and having index place, use same index to loop MovementDate (another array) and create new date
     const date = new Date(acc.movementsDates[i]);
-    const day = `${date.getDate()}`.padStart(2, "0"); // Convert to string, then have dates show with 2 numbers, before 01 would show as 1
-    const month = `${date.getMonth() + 1}`.padStart(2, "0");
-    const year = date.getFullYear();
-    const displayDate = `${day}/${month}/${year}`;
+    // displayDate which goes into the HTML is calling the format function creating the formatted date then inserting to HTML
+    const displayDate = formatMovementDate(date);
     // Create HTML structure for each movement
     const html = `<div class="movements__row">
             <div class="movements__type movements__type--${type}">${
