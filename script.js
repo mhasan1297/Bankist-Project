@@ -77,7 +77,7 @@ const inputClosePin = document.querySelector(".form__input--pin");
 
 // -- FUNCTION to calculate movement times, cleaning code by adding it into a function instead of scope of displayMovements function --//
 // Receives a date as an input and formats the given date
-const formatMovementDate = function (date) {
+const formatMovementDate = function (date, locale) {
   // Takes in two dates on calcDatePassed function
   const calcDatePassed = (date1, date2) =>
     // Doing the maths on the 2 dates when they get passed
@@ -85,7 +85,6 @@ const formatMovementDate = function (date) {
   // Passing the two dates two the calcDatePassed function to begin doing the math
   // Sending current date as date1 and movementsDate as date2
   const daysPassed = calcDatePassed(new Date(), date);
-  console.log(daysPassed);
   // Based on calDatePassed calculation, if it's 0, log 'Today'
   if (daysPassed === 0) return "Today";
   // Based on calDatePassed calculation, if it's 1, log 'Yesterday'
@@ -95,10 +94,14 @@ const formatMovementDate = function (date) {
   if (daysPassed <= 7) return `${daysPassed} Days Ago`;
   // If non of the above are true, log the full date
   else {
-    const day = `${date.getDate()}`.padStart(2, 0);
-    const month = `${date.getMonth() + 1}`.padStart(2, 0);
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+    // Old Setup //
+    //const day = `${date.getDate()}`.padStart(2, 0);
+    //const month = `${date.getMonth() + 1}`.padStart(2, 0);
+    //const year = date.getFullYear();
+    //return `${day}/${month}/${year}`;
+    // New Setup //
+
+    return new Intl.DateTimeFormat(locale).format(date); // We don't need to pass ooptions here, because it's default return is fine without hours/min
   }
 };
 
@@ -120,7 +123,7 @@ const displayMovements = function (acc, sort = false) {
     // While looping through each movement and having index place, use same index to loop MovementDate (another array) and create new date
     const date = new Date(acc.movementsDates[i]);
     // displayDate which goes into the HTML is calling the format function creating the formatted date then inserting to HTML
-    const displayDate = formatMovementDate(date);
+    const displayDate = formatMovementDate(date, acc.locale);
     // Create HTML structure for each movement
     const html = `<div class="movements__row">
             <div class="movements__type movements__type--${type}">${
@@ -223,14 +226,27 @@ btnLogin.addEventListener("click", (e) => {
     // If correct, put opacity from 0 to 100
     containerApp.style.opacity = 100;
 
-    //Create Current date
+    // Create Current date
     const now = new Date();
-    const day = `${now.getDate()}`.padStart(2, "0"); // Convert to string, then have dates show with 2 numbers, before 01 would show as 1
-    const month = `${now.getMonth() + 1}`.padStart(2, "0");
-    const year = now.getFullYear();
-    const hour = now.getHours();
-    const min = `${now.getMinutes()}`.padStart(2, "0");
-    labelDate.textContent = `As of ${day}/${month}/${year}, ${hour}:${min}`;
+
+    // Options for formatting the date and time
+    const options = {
+      hour: "numeric",
+      minute: "numeric",
+      day: "numeric",
+      month: "numeric",
+      year: "numeric",
+      //weekday: "long",
+    };
+
+    // Get the user's preferred language from the browser
+    const locale = navigator.language;
+
+    // Format the current date according to the specified options and locale
+    labelDate.textContent = new Intl.DateTimeFormat(
+      currentAccount.locale,
+      options
+    ).format(now);
 
     // Clear input field (This happens after all the code is executed in IF statement)
     inputLoginUsername.value = inputLoginPin.value = "";
